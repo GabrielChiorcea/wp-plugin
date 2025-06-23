@@ -1,66 +1,69 @@
 # wp-plugin
 
-trebuie sa fie instalat woo, ACF si Custom Post Type
+## Trebuie sa fie instalat woo, ACF si Custom Post Type
 
 
-Instalezi pluginul Custom Post Type UI.
+### Instalezi pluginul Custom Post Type UI.
 
 În dashboard WP → CPT UI → Add/Edit Post Types → Completezi:
 
-Post Type Slug: mlc_cupon
+1. Post Type Slug: mlc_cupon
 
-Plural Label: Cupoane
+2. Plural Label: Cupoane
 
-Singular Label: Cupon
+3. Singular Label: Cupon
 
-Configurezi opțiunile (public false, show UI true, etc)
+--- Configurezi opțiunile (public false, show UI true, etc)
 
 
 
-La ACF
+### La ACF
  Adaugă câmpurile (Fields) în grupul nou
-a) cod_cupon
-Click pe „Add Field”
+ 
+a. cod_cupon
+- Click pe „Add Field”
 
-Field Label: Cod Cupon
+- Field Label: Cod Cupon
 
-Field Name: cod_cupon (se completează automat după Label)
+- Field Name: cod_cupon (se completează automat după Label)
 
-Field Type: Text
+- Field Type: Text
 
-Instrucțiuni (opțional): „Codul care va fi folosit de client pentru reducere”
+- Instrucțiuni (opțional): „Codul care va fi folosit de client pentru reducere”
 
-Required: bifează dacă vrei să fie obligatoriu
+- Required: bifează dacă vrei să fie obligatoriu
 
-Leave rest default
+- Leave rest default
 
 b) puncte_necesare
-Click pe „Add Field”
 
-Field Label: Puncte Necesare
+- Click pe „Add Field”
 
-Field Name: puncte_necesare
+- Field Label: Puncte Necesare
 
-Field Type: Number
+- Field Name: puncte_necesare
 
-Instrucțiuni: „Numărul de puncte pe care clientul trebuie să le aibă ca să deblocheze cuponul”
+- Field Type: Number
 
-Required: bifează dacă vrei să fie obligatoriu
+- Instrucțiuni: „Numărul de puncte pe care clientul trebuie să le aibă ca să deblocheze cuponul”
 
-Min Value: 0 (opțional)
+- Required: bifează dacă vrei să fie obligatoriu
 
-Step: 1 (opțional)
+- Min Value: 0 (opțional)
+
+- Step: 1 (opțional)
 
 c) descriere_scurta
-Click pe „Add Field”
 
-Field Label: Descriere Scurtă
+- Click pe „Add Field”
 
-Field Name: descriere_scurta
+- Field Label: Descriere Scurtă
 
-Field Type: Textarea
+- Field Name: descriere_scurta
 
-Instrucțiuni: „O descriere concisă a cuponului, ce oferă clientului informații despre reducere”
+- Field Type: Textarea
 
-Required: opțional
+- Instrucțiuni: „O descriere concisă a cuponului, ce oferă clientului informații despre reducere”
+
+- Required: opțional
 
