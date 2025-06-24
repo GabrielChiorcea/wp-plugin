@@ -66,3 +66,14 @@ function mlc_afiseaza_cupoane_deblocate_in_myaccount() {
 }
 
 ```
+
+//asta ca sa editesz my account 
+add_filter( 'woocommerce_account_menu_items', 'custom_remove_my_account_tabs' );
+function custom_remove_my_account_tabs( $items ) {
+    unset( $items['orders'] );     // Elimină comenzi
+    unset( $items['downloads'] );  // Elimină descărcări
+    unset( $items['edit-address'] ); // Elimină adrese (dacă vrei)
+    // unset( $items['edit-account'] ); // Elimină "Account details"
+    // unset( $items['customer-logout'] ); // Nu recomand :)
+    return $items;
+}
