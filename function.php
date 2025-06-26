@@ -273,3 +273,77 @@ function mlc_schimba_titlu_puncte( $title, $id ) {
 
 
 
+
+function mlc_afiseaza_promotii_shortcode() {
+    $args = [
+        'post_type' => 'promotii',
+        'posts_per_page' => -1,
+        'post_status' => 'publish',
+        'orderby' => 'date',
+        'order' => 'DESC',
+        'meta_query' => [
+            [
+                'key' => 'data_sfarsit_promo',
+                'value' => date('Ymd'),  // Data de azi în format Ymd
+                'compare' => '>=',       // Promoții care încă nu au expirat
+                'type' => 'DATE',
+            ],
+        ],
+    ];
+
+    $query = new WP_Query($args);
+
+    if (!$query->have_posts()) {
+        return '<p>Momentan nu există promoții active.</p>';
+    }
+
+    ob_start();
+
+    echo '<div class="mlc-promotii-grid">';
+
+    while ($query->have_posts()) {
+        $query->the_post();
+
+        $titlu = get_the_title();
+        $descriere = get_field('descriere_promo');
+        $imagine = get_the_post_thumbnail_url(get_the_ID(), 'medium');
+        $data_start = get_field('data_inceput_promo');
+        $data_sfarsit = get_field('data_sfarsit_promo');
+        $reducere = get_field('reducere');
+        $cantitate = get_field('cantitate_limitata');
+        $conditii = get_field('conditii_promo');
+
+        echo '<div class="mlc-promo-box">';
+        if ($imagine) {
+            echo '<img src="' . esc_url($imagine) . '" alt="' . esc_attr($titlu) . '">';
+        }
+        echo '<h3>' . esc_html($titlu) . '</h3>';
+        if ($reducere) {
+            echo '<p><strong>Reducere: </strong>' . esc_html($reducere) . '</p>';
+        }
+        if ($descriere) {
+            echo '<p>' . esc_html($descriere) . '</p>';
+        }
+        if ($cantitate) {
+            echo '<p><strong>Cantitate limitată: </strong>' . esc_html($cantitate) . '</p>';
+        }
+        if ($data_start && $data_sfarsit) {
+            echo '<p><em>Valabil între ' . esc_html($data_start) . ' și ' . esc_html($data_sfarsit) . '</em></p>';
+        }
+        if ($conditii) {
+            echo '<p><strong>Condiții: </strong>' . esc_html($conditii) . '</p>';
+        }
+        echo '</div>';
+    }
+
+    echo '</div>';
+
+    wp_reset_postdata();
+
+    return ob_get_clean();
+}
+add_shortcode('promotii', 'mlc_afiseaza_promotii_shortcode');
+
+
+
+
