@@ -157,3 +157,50 @@
     font-weight: bold;
     margin-left: 10px;
 }
+
+
+.mlc-promotii-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.mlc-promo-box {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 15px;
+    text-align: center;
+    transition: box-shadow 0.3s ease;
+}
+
+.mlc-promo-box:hover {
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.mlc-promo-box img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.mlc-promo-box h3 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.mlc-promo-box p {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+@media (max-width: 600px) {
+    .mlc-promotii-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
