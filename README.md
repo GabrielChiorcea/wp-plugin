@@ -70,3 +70,8 @@ c) descriere_scurta
 # Show this field group if Post Type is equal to mlc_cupon (important, la ACF)
 
 short code pentru pagina de cupoane [my_coupons_page]
+
+short code pentru pagina de reduceri [promtii]
+
+
+
