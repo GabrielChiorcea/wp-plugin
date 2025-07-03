@@ -1,7 +1,6 @@
 <?php
 /**
- * 🛡️ HEADLESS SECURITY pentru WordPress + JWT + Woo
- * Cod pentru funcționalitate + protecție API
+ * 🛡️ HEADLESS SECURITY pentru WordPress + WooCommerce + JWT
  */
 
 /**
@@ -11,9 +10,30 @@ add_filter('rest_pre_dispatch', function ($result, $server, $request) {
     $method = $request->get_method();
     $jwt_required = in_array($method, ['POST', 'PUT', 'DELETE']);
 
-    // Dacă metoda cere autentificare și userul nu e logat (fără JWT valid)
     if ($jwt_required && !is_user_logged_in()) {
         return new WP_Error('rest_forbidden', 'JWT Authentication required.', ['status' => 401]);
+    }
+
+    return $result;
+}, 10, 3);
+
+/**
+ * 🔐 Blochează accesul la WooCommerce API (GET / POST / DELETE) fără autentificare
+ */
+add_filter('rest_pre_dispatch', function ($result, $server, $request) {
+    $woo_protected_routes = [
+        '/wc/v3/orders',
+        '/wc/v3/customers',
+        '/wc/v3/users',
+        '/wc/v3/reports',
+        '/wc/v3/coupons',
+    ];
+
+    $route = $request->get_route();
+    foreach ($woo_protected_routes as $protected) {
+        if (strpos($route, $protected) !== false && !is_user_logged_in()) {
+            return new WP_Error('rest_forbidden', 'JWT required for WooCommerce data.', ['status' => 401]);
+        }
     }
 
     return $result;
@@ -29,10 +49,10 @@ add_filter('xmlrpc_enabled', '__return_false');
  */
 add_filter('rest_endpoints', function ($endpoints) {
     if (isset($endpoints['/wp/v2/users'])) {
-        unset($endpoints['/wp/v2/users']); // lista de utilizatori
+        unset($endpoints['/wp/v2/users']);
     }
     if (isset($endpoints['/wp/v2/users/(?P<id>[\d]+)'])) {
-        unset($endpoints['/wp/v2/users/(?P<id>[\d]+)']); // utilizator individual
+        unset($endpoints['/wp/v2/users/(?P<id>[\d]+)']);
     }
     return $endpoints;
 });
@@ -61,12 +81,3 @@ add_filter('rest_prepare_post', function ($response, $post, $request) {
     $response->set_data($data);
     return $response;
 }, 10, 3);
-
-/**
- * 🧰 Exemplu extra: dezactivează alte endpoint-uri (comentarii, media)
- */
-// add_filter('rest_endpoints', function ($endpoints) {
-//     unset($endpoints['/wp/v2/comments']);
-//     unset($endpoints['/wp/v2/media']);
-//     return $endpoints;
-// });
