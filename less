@@ -1,0 +1,72 @@
+<?php
+/**
+ * 🛡️ HEADLESS SECURITY pentru WordPress + JWT + Woo
+ * Cod pentru funcționalitate + protecție API
+ */
+
+/**
+ * ✅ Blochează metodele POST, PUT, DELETE dacă nu ești autentificat cu JWT
+ */
+add_filter('rest_pre_dispatch', function ($result, $server, $request) {
+    $method = $request->get_method();
+    $jwt_required = in_array($method, ['POST', 'PUT', 'DELETE']);
+
+    // Dacă metoda cere autentificare și userul nu e logat (fără JWT valid)
+    if ($jwt_required && !is_user_logged_in()) {
+        return new WP_Error('rest_forbidden', 'JWT Authentication required.', ['status' => 401]);
+    }
+
+    return $result;
+}, 10, 3);
+
+/**
+ * 🛑 Dezactivează xmlrpc.php complet
+ */
+add_filter('xmlrpc_enabled', '__return_false');
+
+/**
+ * 🔍 Ascunde complet endpoint-urile pentru utilizatori (GET /wp-json/wp/v2/users)
+ */
+add_filter('rest_endpoints', function ($endpoints) {
+    if (isset($endpoints['/wp/v2/users'])) {
+        unset($endpoints['/wp/v2/users']); // lista de utilizatori
+    }
+    if (isset($endpoints['/wp/v2/users/(?P<id>[\d]+)'])) {
+        unset($endpoints['/wp/v2/users/(?P<id>[\d]+)']); // utilizator individual
+    }
+    return $endpoints;
+});
+
+/**
+ * 🧼 Curăță răspunsurile API pentru useri — ascunde email, link, descriere
+ */
+add_filter('rest_prepare_user', function ($response, $user, $request) {
+    if (!current_user_can('edit_users')) {
+        $data = $response->get_data();
+        unset($data['email']);
+        unset($data['link']);
+        unset($data['description']);
+        $response->set_data($data);
+    }
+    return $response;
+}, 10, 3);
+
+/**
+ * 🧼 Ascunde câmpuri sensibile din postări
+ */
+add_filter('rest_prepare_post', function ($response, $post, $request) {
+    $data = $response->get_data();
+    unset($data['author']); // ascunde autorul postării
+    unset($data['meta']);   // ascunde meta fields
+    $response->set_data($data);
+    return $response;
+}, 10, 3);
+
+/**
+ * 🧰 Exemplu extra: dezactivează alte endpoint-uri (comentarii, media)
+ */
+// add_filter('rest_endpoints', function ($endpoints) {
+//     unset($endpoints['/wp/v2/comments']);
+//     unset($endpoints['/wp/v2/media']);
+//     return $endpoints;
+// });
