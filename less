@@ -1,10 +1,60 @@
 <?php
 /**
  * 🛡️ HEADLESS SECURITY pentru WordPress + WooCommerce + JWT
+ * 
+ * - Ascunde frontend WP pentru neadmini
+ * - Setează CORS doar pentru frontend-ul tău + Postman
+ * - Protejează API-ul REST cu JWT
+ * - Dezactivează xmlrpc.php
+ * - Ascunde endpoint-uri și câmpuri sensibile din API
  */
 
+
 /**
- * ✅ Blochează metodele POST, PUT, DELETE dacă nu ești autentificat cu JWT
+ * 1. Blochează frontend WP pentru neadmini (și neautentificați)
+ *    - Adminii pot vedea tot
+ *    - Pagina de login WP este accesibilă oricui
+ *    - Restul utilizatorilor primesc 403 Forbidden
+ */
+add_action('template_redirect', function () {
+    if (current_user_can('administrator')) {
+        return; // Admin vede tot frontend-ul
+    }
+    if (in_array($GLOBALS['pagenow'], ['wp-login.php'])) {
+        return; // Pagina de login WP este accesibilă
+    }
+    wp_die('Acces interzis. Site headless.', 'Forbidden', ['response' => 403]);
+});
+
+
+/**
+ * 2. Setează CORS doar pentru frontend-ul tău (brandivo.ro) și Postman
+ */
+add_action('rest_api_init', function () {
+    remove_filter('rest_pre_serve_request', 'rest_send_cors_headers');
+    add_filter('rest_pre_serve_request', function ($value) {
+        $origin = get_http_origin();
+
+        $allowed_origins = [
+            'https://brandivo.ro',
+            'https://www.brandivo.ro',
+            'chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop', // Postman Chrome Extension ID
+        ];
+
+        if ($origin && in_array($origin, $allowed_origins)) {
+            header("Access-Control-Allow-Origin: $origin");
+            header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+            header("Access-Control-Allow-Credentials: true");
+            header("Access-Control-Allow-Headers: Authorization, Content-Type");
+        }
+
+        return $value;
+    });
+});
+
+
+/**
+ * 3. Protecție API REST: Blochează metodele POST, PUT, DELETE dacă nu ești autentificat
  */
 add_filter('rest_pre_dispatch', function ($result, $server, $request) {
     $method = $request->get_method();
@@ -17,8 +67,9 @@ add_filter('rest_pre_dispatch', function ($result, $server, $request) {
     return $result;
 }, 10, 3);
 
+
 /**
- * 🔐 Blochează accesul la WooCommerce API (GET / POST / DELETE) fără autentificare
+ * 4. Protecție API REST: Blochează accesul la WooCommerce API sensibile dacă nu ești autentificat
  */
 add_filter('rest_pre_dispatch', function ($result, $server, $request) {
     $woo_protected_routes = [
@@ -39,13 +90,15 @@ add_filter('rest_pre_dispatch', function ($result, $server, $request) {
     return $result;
 }, 10, 3);
 
+
 /**
- * 🛑 Dezactivează xmlrpc.php complet
+ * 5. Dezactivează complet xmlrpc.php
  */
 add_filter('xmlrpc_enabled', '__return_false');
 
+
 /**
- * 🔍 Ascunde complet endpoint-urile pentru utilizatori (GET /wp-json/wp/v2/users)
+ * 6. Ascunde endpoint-urile API sensibile pentru utilizatori
  */
 add_filter('rest_endpoints', function ($endpoints) {
     if (isset($endpoints['/wp/v2/users'])) {
@@ -57,8 +110,9 @@ add_filter('rest_endpoints', function ($endpoints) {
     return $endpoints;
 });
 
+
 /**
- * 🧼 Curăță răspunsurile API pentru useri — ascunde email, link, descriere
+ * 7. Curăță răspunsurile API pentru utilizatori: ascunde email, link, descriere pentru non-admini
  */
 add_filter('rest_prepare_user', function ($response, $user, $request) {
     if (!current_user_can('edit_users')) {
@@ -71,8 +125,9 @@ add_filter('rest_prepare_user', function ($response, $user, $request) {
     return $response;
 }, 10, 3);
 
+
 /**
- * 🧼 Ascunde câmpuri sensibile din postări
+ * 8. Ascunde câmpuri sensibile din răspunsurile API pentru postări
  */
 add_filter('rest_prepare_post', function ($response, $post, $request) {
     $data = $response->get_data();
