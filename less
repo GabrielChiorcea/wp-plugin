@@ -136,3 +136,16 @@ add_filter('rest_prepare_post', function ($response, $post, $request) {
     $response->set_data($data);
     return $response;
 }, 10, 3);
+
+
+
+ * 9. Permite ca produsle sa fie vizibile
+ */
+add_filter('woocommerce_rest_check_permissions', function ($permission, $context, $object_id) {
+    // Verifică dacă este pentru produs și context read (GET)
+    if ($object_id === 'product' || $context === 'read') {
+        return true; // Permite GET public produse
+    }
+    return $permission;
+}, 10, 3);
+
